@@ -2,7 +2,8 @@ let x=0;
 let y=0;
 let direzione ="";
 let colrig;//variabile per distinguere righe o colonne, in modo da spostare solo le righe o solo le colonne(?)
-window.onload = function(){//funzioni da caricare al caricamento della pagina (genera tabella)
+
+window.onload = function(){//funzioni da caricare al caricamento della pagina (genera tabella, random)
     generaTabella();
     random();
 }
@@ -38,19 +39,23 @@ function random(){
     let nx = Math.floor(Math.random()*4);
     let ny = Math.floor(Math.random()*4);
     let nval = Math.round(Math.random()) ? 2 : 4;
-    console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
+    //console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
     
     let celle = document.querySelectorAll(`.celle`);
 
     for (let i = 0; i < celle.length; i++) {
         const cella = celle[i];
         if (cella.dataset.x == nx && cella.dataset.y == ny) {
-            if(cella.dataset.val==0){
+            if(cella.dataset.val==0){//se la cella e` libera
+                const pval = document.createElement('p');
+                let ptext = document.createTextNode(nval);
+                pval.appendChild(ptext);
                 cella.removeAttribute("data-val");
-                cella.setAttribute("data-val", nval);    
-                cella.style.backgroundColor = "black";//solo per capire se e` effettivamente occupata
+                cella.setAttribute("data-val", nval);
+                cella.appendChild(pval);                
             }else{
-                random();
+                //bisogna mettere un controllo per controllare vittoria a perdita(?)
+               random();
             }
         }
     }  
@@ -81,7 +86,7 @@ function input(input) {
     random();
 }
 
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function(event) {//tasti
     switch (event.code) {
         case "ArrowUp":
             direzione = "su";
@@ -108,17 +113,41 @@ document.addEventListener('keydown', function(event) {
 
 function movimento(colrig){
     let positivo;//per gli spostamenti (su e destra postivi, giu e sinistra negativi)
+
     if (direzione == "su" || direzione=="destra"){
         positivo=true;
     }else{
         positivo=false
     }
     if (colrig){//sposta solo le colonne
+
         if (positivo){//verso l'alto
-            //for ()
+            dir =1;
+
+            for (let pos_x=0; pos_x<=3; pos_x++){// per ogni riga
+                let arraytemp = [];
+                //console.log(`--------riga--------`)
+
+                for (let pos_y=0; pos_y<=3; pos_y++){//per ogni colonna
+
+                    let celle = document.querySelectorAll(`.celle`);
+
+                    for (let i = 0; i < celle.length; i++) {
+                        const cella = celle[i];
+
+                        if (cella.dataset.x == pos_x && cella.dataset.y == pos_y) {//controlla se la cella
+                            arraytemp += cella.dataset.val;
+                            
+                            //console.log(`aggiunto a array, pos (${pos_x}, ${pos_y})`);
+                            //console.log(`array, ${arraytemp}`);
+                            sposta(arraytemp, cella, pos_x, pos_y, dir);
+                            
+                        }
+                    }  
+                }
+            }
         }
     }
-    random();
 }
 
 function reload(){
@@ -128,4 +157,34 @@ function reload(){
     document.getElementById('tabella').innerHTML="";
     generaTabella();
     random();
+}
+
+function sposta(arraytemp, cella, x, y, dir){
+    let valore;
+    for (let i = 1; i< arraytemp.length; i++){
+        if (arraytemp[i]!= arraytemp[i-1] && arraytemp[i]!=0){//se la cella dopo e` occupata
+        console.log(`stesso valore, valori: ${arraytemp[i]}, ${arraytemp[i-1]}, posizione: (${x}, ${y})`)
+        }else{
+            console.log('spostando');
+            cella.setAttribute("data-val", `0`);
+            valore = cella.dataset.val;
+
+            let celle = document.querySelectorAll(`.celle`);
+            for (let i = 0; i < celle.length; i++) {
+                const cella = celle[i];
+                if (cella.dataset.x == x && cella.dataset.y == y) {
+                    cella.innerHTML = "";
+                }
+                y+1;
+                console.log(y)
+                if((cella.dataset.y + dir) == y){
+                    const pval = document.createElement('p');
+                    let ptext = document.createTextNode(valore);
+                    pval.appendChild(ptext);
+                    cella.setAttribute("data-val", valore);
+                    cella.appendChild(pval);   
+                }
+            }
+        }
+    }
 }
