@@ -1,190 +1,296 @@
 let x=0;
 let y=0;
-let direzione ="";
-let colrig;//variabile per distinguere righe o colonne, in modo da spostare solo le righe o solo le colonne(?)
+let turno1 = true;
+let punteggio =0;
+let secondi =0;
+let minuti =0;
 
-window.onload = function(){//funzioni da caricare al caricamento della pagina (genera tabella, random)
-    generaTabella();
+window.onload = function(){//funzioni da caricare al caricamento della pagina (random)
     random();
+    random();
+    aggiornapunteggio();
+    setInterval(timer, 1000);
 }
 
-function generaTabella(){
-    const div= document.getElementById('tabella');
-    let r=4;
-    let c=4;
+
+function cellaPresente(x,y){
     
-    const tabella = document.createElement('table')
-    for (let i =0; i<r; i++){
-        const righe = document.createElement('tr');
-        for( let j=0; j<c; j++){
-            const colonne = document.createElement('td');
-            colonne.setAttribute('class', 'celle')
-            colonne.setAttribute('data-x', x);
-            colonne.setAttribute('data-y', y);
-            colonne.setAttribute('data-val', 0);
-            righe.appendChild(colonne);
-            if(x>2){
-                x=0;
-                y++;
-            }else{
-                x++;
-            }
-        }
-        tabella.appendChild(righe);
-    }
-    div.appendChild(tabella);
+    const selector = '[data-x="' + x+ '"][data-y="'+y+'"]';
+    const div = document.querySelector(selector);
+    return div;
 }
 
 function random(){
     let nx = Math.floor(Math.random()*4);
     let ny = Math.floor(Math.random()*4);
     let nval = Math.round(Math.random()) ? 2 : 4;
-    //console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
     
-    let celle = document.querySelectorAll(`.celle`);
+    if(turno1){//una casella deve essere costruita da qualche parte per forza
 
-    for (let i = 0; i < celle.length; i++) {
-        const cella = celle[i];
-        if (cella.dataset.x == nx && cella.dataset.y == ny) {
-            if(cella.dataset.val==0){//se la cella e` libera
-                const pval = document.createElement('p');
-                let ptext = document.createTextNode(nval);
-                pval.appendChild(ptext);
-                cella.removeAttribute("data-val");
-                cella.setAttribute("data-val", nval);
-                cella.appendChild(pval);                
-            }else{
-                //bisogna mettere un controllo per controllare vittoria a perdita(?)
-               random();
-            }
+        inserisciCella(nx, ny, nval);
+
+        turno1=false;
+
+    }else{//da qui parte il controllo per verificare che la casella non venga costruita sopra un'altra
+        
+        let divcontrollo = cellaPresente(nx, ny);
+
+        if (divcontrollo == null){
+            inserisciCella(nx, ny, nval)
+        }else{//rieseguo random in modo da trovare una cella vuoto ad una certa
+            random();
         }
-    }  
+    }
+}
+
+function inserisciCella(nx, ny,nval){
+    //console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
+    const div = document.createElement('div');
+    let divimg = document.createElement(`img`);
+    divimg.src = `img/${nval}.png`;
+    div.appendChild(divimg);
+    div.style.top = (ny*150) + 'px';//posizione
+    div.style.left = (nx*150) + 'px';//posizione
+    div.setAttribute('data-x', nx);
+    div.setAttribute('data-y', ny);
+    div.setAttribute('data-val', nval);
+    div.setAttribute("class", "celle");
+    tabella.appendChild(div); 
 }
 
 function input(input) {
-    direzione = input;
 
-    switch (direzione) {
+    switch (input) {
         case "su":
-            colrig = true;
-            movimento(colrig);
+            spostasu();
             break;
         case "giu":
-            colrig = true;
-            movimento(colrig);
+            spostagiu();
             break;
         case "destra":
-            colrig = false;
-            movimento(colrig);
+            spostadestra();
             break;
         case "sinistra":
-            colrig = false;
-            movimento(colrig);
+            spostasinistra()
             break;
     }
-
+    vs();
     random();
 }
 
 document.addEventListener('keydown', function(event) {//tasti
     switch (event.code) {
         case "ArrowUp":
-            direzione = "su";
-            colrig = true;
+            spostasu();
             break;
         case "ArrowDown":
-            direzione = "giu";
-            colrig = true;
+            spostagiu();
             break;
         case "ArrowLeft":
-            direzione = "sinistra";
-            colrig = false;
+            spostasinistra();
             break;
         case "ArrowRight":
-            direzione = "destra";
-            colrig = false;
+            spostadestra();
             break;
         default:
             return;
     }
-    movimento(colrig);
+    vs();
     random();
 }); 
 
-function movimento(colrig){
-    let positivo;//per gli spostamenti (su e destra postivi, giu e sinistra negativi)
 
-    if (direzione == "su" || direzione=="destra"){
-        positivo=true;
-    }else{
-        positivo=false
-    }
-    if (colrig){//sposta solo le colonne
+function rimuoviCella(element){
+    element.parentNode.removeChild(element);
+}
 
-        if (positivo){//verso l'alto
-            dir =1;
+function muoviCella(div,nx,ny){
+    //console.log("Sposto");
+    div.dataset.x=nx;
+    div.dataset.y=ny;
+    div.style.left = (nx*150) + 'px';
+    div.style.top = (ny*150) + 'px';
+}
 
-            for (let pos_x=0; pos_x<=3; pos_x++){// per ogni riga
-                let arraytemp = [];
-                //console.log(`--------riga--------`)
+function spostasu() {
+    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
 
-                for (let pos_y=0; pos_y<=3; pos_y++){//per ogni colonna
+    for (let i = 0; i < celle.length; i++) {
+        const cella = celle[i];
+        let x = cella.dataset.x;
+        let nuovaY = cella.dataset.y;
 
-                    let celle = document.querySelectorAll(`.celle`);
 
-                    for (let i = 0; i < celle.length; i++) {
-                        const cella = celle[i];
+        //trova la posizione più alta
+        while (nuovaY > 0 && cellaPresente(x, nuovaY -1) == null) {
+            //console.log(nuovaY-1);
+            nuovaY--;
+        }
 
-                        if (cella.dataset.x == pos_x && cella.dataset.y == pos_y) {//controlla se la cella
-                            arraytemp += cella.dataset.val;
-                            
-                            //console.log(`aggiunto a array, pos (${pos_x}, ${pos_y})`);
-                            //console.log(`array, ${arraytemp}`);
-                            sposta(arraytemp, cella, pos_x, pos_y, dir);
-                            
-                        }
-                    }  
-                }
-            }
+        //vedo se riesco ad unire le celle
+        const cellaSopra = cellaPresente(x, nuovaY -1);
+        if (cellaSopra != null && cellaSopra.dataset.val == cella.dataset.val) {
+            //unisci le celle
+            inserisciCella(x, nuovaY -1, 2 * parseInt(cella.dataset.val));
+            punteggio += parseInt(cellaPresente(x, nuovaY-1).dataset.val);
+            aggiornapunteggio();
+            rimuoviCella(cellaSopra);
+            rimuoviCella(cella);
+        } else{//altrimenti sposta fino a dove puoi
+            muoviCella(cella, x, nuovaY);
+            
         }
     }
+}
+
+
+function spostagiu() {
+    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
+
+    for (let i = 0; i < celle.length; i++) {
+        const cella = celle[i];
+        let x = parseInt(cella.dataset.x);
+        let nuovaY = parseInt(cella.dataset.y);
+
+
+        //trova la posizione più bassa
+        while (nuovaY < 3 && cellaPresente(x, nuovaY +1) == null) {
+            nuovaY++;
+        }
+
+        //vedo se riesco ad unire le celle
+        const cellasotto = cellaPresente(x, nuovaY +1);
+        if (cellasotto != null && cellasotto.dataset.val == cella.dataset.val) {
+            //unisci le celle
+            inserisciCella(x, nuovaY +1, 2 * parseInt(cella.dataset.val));
+            punteggio += parseInt(cellaPresente(x, nuovaY+1).dataset.val);
+            aggiornapunteggio();
+            rimuoviCella(cellasotto);
+            rimuoviCella(cella);
+        } else{//altrimenti sposta fino a dove puoi
+            muoviCella(cella, x, nuovaY);
+        }
+    }
+}
+
+
+function spostadestra() {
+    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
+
+    for (let i = 0; i < celle.length; i++) {
+        const cella = celle[i];
+        let y = parseInt(cella.dataset.y);
+        let nuovaX = parseInt(cella.dataset.x);
+
+        //trova la posizione più a destra
+        while (nuovaX < 3 && cellaPresente(nuovaX +1, y) == null) {
+            nuovaX++;
+        }
+
+        //vedo se riesco ad unire le celle
+        const celladestra = cellaPresente(nuovaX+1, y);
+        if (celladestra != null && celladestra.dataset.val == cella.dataset.val) {
+            //unisci le celle
+            inserisciCella(nuovaX +1, y, 2 * parseInt(cella.dataset.val));
+            punteggio += parseInt(cellaPresente(nuovaX+1, y).dataset.val);
+            aggiornapunteggio();
+            rimuoviCella(celladestra);
+            rimuoviCella(cella);
+        } else{//altrimenti sposta fino a dove puoi
+            muoviCella(cella,nuovaX, y);
+        }
+    }
+}
+
+function spostasinistra() {
+    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
+
+    for (let i = 0; i < celle.length; i++) {
+        const cella = celle[i];
+        let y = parseInt(cella.dataset.y);
+        let nuovaX = parseInt(cella.dataset.x);
+
+        //trova la posizione più a destra
+        while (nuovaX > 0  && cellaPresente(nuovaX -1, y) == null) {
+            nuovaX--;
+        }
+
+        //vedo se riesco ad unire le celle
+        const cellasinistra = cellaPresente(nuovaX-1, y);
+        if (cellasinistra != null && cellasinistra.dataset.val == cella.dataset.val) {
+            //unisci le celle
+            inserisciCella(nuovaX -1, y, 2 * parseInt(cella.dataset.val));
+            punteggio += parseInt(cellaPresente(nuovaX-1, y).dataset.val);
+            aggiornapunteggio();
+            rimuoviCella(cellasinistra);
+            rimuoviCella(cella);
+        } else{//altrimenti sposta fino a dove puoi
+            muoviCella(cella,nuovaX, y);
+        }
+    }
+}
+
+function aggiornapunteggio(){
+    let p = document.getElementById('punteggio');
+    p.innerHTML = `punteggio: ${punteggio}`;
+}
+
+function timer(){
+    secondi++;
+    let p =document.getElementById('timer');
+
+    if (secondi>60){
+        minuti++;
+        secondi =0;
+    }
+
+    let tempo = `${minuti} : ${secondi}`
+    p.innerHTML = `tempo: ${tempo}s`;
 }
 
 function reload(){
     x=0;
     y=0;
+    minuti =0;
+    secondi =0;
     direzione ="";
+    punteggio=0;
+    turno1 = false;
+    document.getElementById('punteggio').innerHTML = `punteggio: 0` 
     document.getElementById('tabella').innerHTML="";
-    generaTabella();
+    random();
     random();
 }
 
-function sposta(arraytemp, cella, x, y, dir){
-    let valore;
-    for (let i = 1; i< arraytemp.length; i++){
-        if (arraytemp[i]!= arraytemp[i-1] && arraytemp[i]!=0){//se la cella dopo e` occupata
-        console.log(`stesso valore, valori: ${arraytemp[i]}, ${arraytemp[i-1]}, posizione: (${x}, ${y})`)
-        }else{
-            console.log('spostando');
-            cella.setAttribute("data-val", `0`);
-            valore = cella.dataset.val;
+function vs(){
+    let div = document.createElement('div');
+    const celle = document.querySelectorAll('.celle');
+    let contatore =0;
+    let testo;
 
-            let celle = document.querySelectorAll(`.celle`);
-            for (let i = 0; i < celle.length; i++) {
-                const cella = celle[i];
-                if (cella.dataset.x == x && cella.dataset.y == y) {
-                    cella.innerHTML = "";
-                }
-                y+1;
-                console.log(y)
-                if((cella.dataset.y + dir) == y){
-                    const pval = document.createElement('p');
-                    let ptext = document.createTextNode(valore);
-                    pval.appendChild(ptext);
-                    cella.setAttribute("data-val", valore);
-                    cella.appendChild(pval);   
-                }
-            }
+    for (let i =0; i<celle.length; i++){
+        let cella = celle[i];
+        console.log(parseInt(cella.dataset.val))
+
+        if(cella.dataset.val != 0){
+            contatore++
         }
+        if (parseInt(cella.dataset.val) == 2048){
+            testo = "Hai Vintoo!!";
+        }
+
+    }
+
+    if (contatore == 16){
+        testo= 'hai perso';
+    }
+    
+    let divtext = document.createTextNode(testo);
+
+    if (testo != undefined){
+        div.appendChild(divtext);
+        div.setAttribute('id', 'vs');
+        document.getElementById('main').prepend(div);//prepend per scriverlo sopra ad ogni cosa
     }
 }
+

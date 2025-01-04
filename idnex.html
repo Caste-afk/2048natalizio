@@ -11,34 +11,31 @@
         <h1>2048 Natalizio!</h1>
     </div>
     <div id="main">
-        <div id="vs"></div>
+        <div id="extras">
+            <button onclick="reload()" id="reload">Ricomincia!</button>
+            <p id ='timer'>tempo: 0 : 0</p>
+            <p id="punteggio"></p>
+        </div>
         <div id="tabella"></div>
-        <div id="punteggio"></div>
-        <div id="timer"></div>
         <div id="pulsanti">
             <table>
                 <tr>
                     <td rowspan="2">
-                        <button onclick="input('sinistra')">&#x2190</button>
+                        <button onclick="input('sinistra')" class="laterali">&#x2190</button>
                     </td>
                     <td>
-                        <button onclick="input('su')">&#x2191</button>
+                        <button onclick="input('su')" class="centrali">&#x2191</button>
                     </td>
                     <td rowspan="2">
-                        <button onclick="input('destra')">&#x2192</button>
+                        <button onclick="input('destra')" class="laterali">&#x2192</button>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <button onclick="input('giu')">&#x2193</button>
+                        <button onclick="input('giu')" class="centrali">&#x2193</button>
                     </td>
                 </tr>
             </table>
-        </div>
-        <div id="extras">
-            <button onclick="reload()">Ricomincia!</button>
-            <p>timer(?devo trovare come farlo)</p>
-            <p id="punteggio">punteggio</p>
         </div>
     </div>
 </body>

@@ -1,5 +1,76 @@
+*{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+body{
+    background-color: rgb(194, 148, 103);
+}
+#tabella{
+    width: 600px;
+    height: 600px;
+    border: 2px solid black;
+    position: relative;
+    margin: 20px auto;
+    overflow: hidden;
+    grid-template-columns: repeat(4, 1fr); /* 4 colonne di uguale larghezza */
+    grid-template-rows: repeat(4, 1fr);
+    gap: 150px; /* Spazio tra gli elementi */
+    background-color: white;
+}
+
 .celle{
-    width: 50px;
-    height: 50px;
-    border: 1px solid black;
+    font-size: 100px;
+    width: 150px;
+    height: 150px;
+    border: 2px solid black;
+    position: absolute;
+    display: flex;
+    margin: 0px;
+    transition: top 0.3s ease, left 0.3s ease;
+    animation: appari 0.2s ease-out forwards; 
+}
+
+.laterali{
+    height: 120px;
+    width: 90px;
+    background-color: brown;
+    border-radius: 10px;
+    border: 2px solid black;
+}
+
+.centrali{
+    height: 58px;
+    width: 120px;
+    background-color: brown;
+    border-radius: 10px;
+    border: 2px solid black;
+}
+
+#main{
+    align-items: center;
+    text-align: center;
+}
+
+
+#punteggio{
+    text-align: right;
+}
+#timer{
+    border-radius: 12px;
+    text-align: left;
+}
+
+#vs{/*sistemare colori*/
+    border-radius: 20px;
+    font-size: 26px;
+}
+
+@keyframes appari {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
