@@ -7,14 +7,62 @@ let minuti =0;
 let poteri= [true, true];
 let gioco = true;
 let t;
+let tmax;
+let numeropartite =0;//per mettere a posto il tempo
+let scritto = false;//per testo delle impostazioni
+
 
 window.onload = function(){//funzioni da caricare al caricamento della pagina (random)
-    random();
-    random();
-    aggiornapunteggio();
-    t =setInterval(timer, 1000);
+    document.getElementById('main').style.display = 'none';
+    legenda();
 }
 
+function partita(){
+    tmax = document.getElementById('tmax').value;
+    if (tmax>0){
+        x=0;
+        numeropartite ++;
+        y=0;
+        minuti =0;
+        secondi =0;
+        direzione ="";
+        punteggio=0;
+        poteri= [true, true];
+        turno1 = false;
+        gioco = true;
+        document.getElementById('impostazioni').style.display = 'none'
+        document.getElementById('punteggio').innerHTML = `punteggio: 0` 
+        document.getElementById('tabella').innerHTML="";
+        document.getElementById('main').style.display = ''
+        random();
+        random();
+        aggiornapunteggio();
+        let molt;
+        //serve questo for altrimenti il tempo si velocizza;
+        for (let i =0; i<numeropartite; i++){
+            molt = Math.pow(10, i);
+        }
+        t =setInterval(timer, 1000*molt);
+    
+        generalinee();
+        if(document.getElementById('vs') != null){
+            rimuoviCella(document.getElementById('vs'))
+        }
+    }else{
+        if(!scritto){
+            let div = document.createElement('div')
+            div.setAttribute('id', 'diverr');
+            let pmess = document.createElement('p');
+            pmess.setAttribute('id', 'messerr');
+            let ptext = document.createTextNode('Inserire valori validi!');
+            pmess.appendChild(ptext);
+            div.appendChild(pmess);
+            document.getElementById('impostazioni').appendChild(div);
+            console.log(pmess.textContent);
+            scritto = true;
+        }
+    }
+}
 
 function cellaPresente(x,y){
     
@@ -37,17 +85,24 @@ function random(){
     }else{//da qui parte il controllo per verificare che la casella non venga costruita sopra un'altra
         
         let divcontrollo = cellaPresente(nx, ny);
-
         if (divcontrollo == null){
             inserisciCella(nx, ny, nval)
-        }else{//rieseguo random in modo da trovare una cella vuoto ad una certa
-            random();
+            }else{//controllo tutte le celle per vedere se esiste uno spazio libero
+                for(let i=0; i<4; i++){
+                    for(let j=0; j<4; j++){
+                        if (cellaPresente(i, j) ==null){
+                            random();
+                            return;
+                        }
+                    
+                    }
+                }
         }
     }
 }
 
 function inserisciCella(nx, ny,nval){
-    //console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
+    console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
     const div = document.createElement('div');
     let divimg = document.createElement(`img`);
     divimg.src = `img/${nval}.png`;
@@ -100,13 +155,11 @@ document.addEventListener('keydown', function(event) {//tasti
     random();
 }); 
 
-
 function rimuoviCella(element){
     element.parentNode.removeChild(element);
 }
 
 function muoviCella(div,nx,ny){
-    //console.log("Sposto");
     div.dataset.x=nx;
     div.dataset.y=ny;
     div.style.left = (nx*150) + 'px';
@@ -114,122 +167,132 @@ function muoviCella(div,nx,ny){
 }
 
 function spostasu() {
-    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
 
-    for (let i = 0; i < celle.length; i++) {
-        const cella = celle[i];
-        let x = cella.dataset.x;
-        let nuovaY = cella.dataset.y;
+    for (let ty=1; ty<4; ty++)
+    for (let tx=0; tx<4; tx++){
+        const cella = cellaPresente(tx,ty); //celle[i];
+        if (cella != null) {//se la cella esiste procedi spostando vale per tutti gli "sposta"
+            let x = cella.dataset.x;
+            let nuovaY = cella.dataset.y;
 
 
-        //trova la posizione più alta
-        while (nuovaY > 0 && cellaPresente(x, nuovaY -1) == null) {
-            //console.log(nuovaY-1);
-            nuovaY--;
-        }
+            //trova la posizione più alta
+            while (nuovaY > 0 && cellaPresente(x, nuovaY -1) == null) {
+                nuovaY--;
+            }
 
-        //vedo se riesco ad unire le celle
-        const cellaSopra = cellaPresente(x, nuovaY -1);
-        if (cellaSopra != null && cellaSopra.dataset.val == cella.dataset.val) {
-            //unisci le celle
-            inserisciCella(x, nuovaY -1, 2 * parseInt(cella.dataset.val));
-            punteggio += parseInt(cellaPresente(x, nuovaY-1).dataset.val);
-            aggiornapunteggio();
-            rimuoviCella(cellaSopra);
-            rimuoviCella(cella);
-        } else{//altrimenti sposta fino a dove puoi
-            muoviCella(cella, x, nuovaY);
-            
+            //vedo se riesco ad unire le celle
+            const cellaSopra = cellaPresente(x, nuovaY -1);
+            if (cellaSopra != null && cellaSopra.dataset.val == cella.dataset.val) {
+                //unisci le celle
+                inserisciCella(x, nuovaY -1, 2 * parseInt(cella.dataset.val));
+                punteggio += parseInt(cellaPresente(x, nuovaY-1).dataset.val);
+                aggiornapunteggio();
+                rimuoviCella(cellaSopra);
+                rimuoviCella(cella);
+                muoviCella(cella);
+                spostasu();
+            } else{//altrimenti sposta fino a dove puoi
+                muoviCella(cella, x, nuovaY);
+                
+            }
         }
     }
 }
-
 
 function spostagiu() {
-    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
+    for (let ty=3; ty>=0; ty--)
+        for (let tx=0; tx<4; tx++){
+            const cella = cellaPresente(tx,ty); //celle[i];
+            if (cella != null) {
+                let x = parseInt(cella.dataset.x);
+                let nuovaY = parseInt(cella.dataset.y);
 
-    for (let i = 0; i < celle.length; i++) {
-        const cella = celle[i];
-        let x = parseInt(cella.dataset.x);
-        let nuovaY = parseInt(cella.dataset.y);
 
+                //trova la posizione più bassa
+                while (nuovaY < 3 && cellaPresente(x, nuovaY +1) == null) {
+                    nuovaY++;
+                }
 
-        //trova la posizione più bassa
-        while (nuovaY < 3 && cellaPresente(x, nuovaY +1) == null) {
-            nuovaY++;
-        }
-
-        //vedo se riesco ad unire le celle
-        const cellasotto = cellaPresente(x, nuovaY +1);
-        if (cellasotto != null && cellasotto.dataset.val == cella.dataset.val) {
-            //unisci le celle
-            inserisciCella(x, nuovaY +1, 2 * parseInt(cella.dataset.val));
-            punteggio += parseInt(cellaPresente(x, nuovaY+1).dataset.val);
-            aggiornapunteggio();
-            rimuoviCella(cellasotto);
-            rimuoviCella(cella);
-        } else{//altrimenti sposta fino a dove puoi
-            muoviCella(cella, x, nuovaY);
-        }
+                //vedo se riesco ad unire le celle
+                const cellasotto = cellaPresente(x, nuovaY +1);
+                if (cellasotto != null && cellasotto.dataset.val == cella.dataset.val) {
+                    //unisci le celle
+                    inserisciCella(x, nuovaY +1, 2 * parseInt(cella.dataset.val));
+                    punteggio += parseInt(cellaPresente(x, nuovaY+1).dataset.val);
+                    aggiornapunteggio();
+                    rimuoviCella(cellasotto);
+                    rimuoviCella(cella);
+                    muoviCella(cella);
+                    spostagiu();
+                } else{//altrimenti sposta fino a dove puoi
+                    muoviCella(cella, x, nuovaY);
+                }
+            }
     }
 }
-
-
 function spostadestra() {
-    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
+    for (let tx = 2; tx >= 0; tx--)
+        for (let ty = 0; ty < 4; ty++) {
+            const cella = cellaPresente(tx, ty);
+            if (cella != null) {
+                let y = parseInt(cella.dataset.y);
+                let nuovaX = parseInt(cella.dataset.x);
 
-    for (let i = 0; i < celle.length; i++) {
-        const cella = celle[i];
-        let y = parseInt(cella.dataset.y);
-        let nuovaX = parseInt(cella.dataset.x);
+                //trova la posizione più a destra
+                while (nuovaX < 3 && cellaPresente(nuovaX + 1, y) == null) {
+                    nuovaX++;
+                }
 
-        //trova la posizione più a destra
-        while (nuovaX < 3 && cellaPresente(nuovaX +1, y) == null) {
-            nuovaX++;
+                //vedo se riesco ad unire le celle
+                const celladestra = cellaPresente(nuovaX + 1, y);
+                if (celladestra != null && celladestra.dataset.val == cella.dataset.val) {
+                    //unisci le celle
+                    inserisciCella(nuovaX + 1, y, 2 * parseInt(cella.dataset.val));
+                    punteggio += parseInt(cellaPresente(nuovaX + 1, y).dataset.val);
+                    aggiornapunteggio();
+                    rimuoviCella(celladestra);
+                    rimuoviCella(cella);
+                    muoviCella(cella);
+                    spostadestra();
+                } else { //altrimenti sposta fino a dove puoi
+                    muoviCella(cella, nuovaX, y);
+                }
+            }
         }
-
-        //vedo se riesco ad unire le celle
-        const celladestra = cellaPresente(nuovaX+1, y);
-        if (celladestra != null && celladestra.dataset.val == cella.dataset.val) {
-            //unisci le celle
-            inserisciCella(nuovaX +1, y, 2 * parseInt(cella.dataset.val));
-            punteggio += parseInt(cellaPresente(nuovaX+1, y).dataset.val);
-            aggiornapunteggio();
-            rimuoviCella(celladestra);
-            rimuoviCella(cella);
-        } else{//altrimenti sposta fino a dove puoi
-            muoviCella(cella,nuovaX, y);
-        }
-    }
 }
 
 function spostasinistra() {
-    const celle = document.querySelectorAll('.celle'); //seleziona tutte le celle
+    for (let tx = 1; tx < 4; tx++)
+        for (let ty = 0; ty < 4; ty++){
+            const cella = cellaPresente(tx, ty);
+            if (cella != null) {
+                let y = parseInt(cella.dataset.y); 
+                let nuovaX = parseInt(cella.dataset.x);
 
-    for (let i = 0; i < celle.length; i++) {
-        const cella = celle[i];
-        let y = parseInt(cella.dataset.y);
-        let nuovaX = parseInt(cella.dataset.x);
+                //trova la posizione più a sinistra
+                while (nuovaX > 0 && cellaPresente(nuovaX - 1, y) == null) {
+                    nuovaX--;
+                }
 
-        //trova la posizione più a destra
-        while (nuovaX > 0  && cellaPresente(nuovaX -1, y) == null) {
-            nuovaX--;
+                //vedo se riesco ad unire le celle
+                const cellasinistra = cellaPresente(nuovaX - 1, y);
+                if (cellasinistra != null && cellasinistra.dataset.val == cella.dataset.val) {
+                    //unisci le celle
+                    inserisciCella(nuovaX - 1, y, 2 * parseInt(cella.dataset.val));
+                    punteggio += parseInt(cellaPresente(nuovaX - 1, y).dataset.val);
+                    aggiornapunteggio();
+                    rimuoviCella(cellasinistra);
+                    rimuoviCella(cella);
+                    muoviCella(cella);
+                    spostasinistra();
+                } else {//altrimenti sposta fino a dove puoi
+                    muoviCella(cella, nuovaX, y);
+                }
+            }
         }
-
-        //vedo se riesco ad unire le celle
-        const cellasinistra = cellaPresente(nuovaX-1, y);
-        if (cellasinistra != null && cellasinistra.dataset.val == cella.dataset.val) {
-            //unisci le celle
-            inserisciCella(nuovaX -1, y, 2 * parseInt(cella.dataset.val));
-            punteggio += parseInt(cellaPresente(nuovaX-1, y).dataset.val);
-            aggiornapunteggio();
-            rimuoviCella(cellasinistra);
-            rimuoviCella(cella);
-        } else{//altrimenti sposta fino a dove puoi
-            muoviCella(cella,nuovaX, y);
-        }
-    }
 }
+
 
 function aggiornapunteggio(){
     let p = document.getElementById('punteggio');
@@ -239,35 +302,28 @@ function aggiornapunteggio(){
 function timer(){
     secondi++;
     let p =document.getElementById('timer');
-
     if (secondi>60){
         minuti++;
         secondi =0;
     }
 
     let tempo = `${minuti} : ${secondi}`
-    p.innerHTML = `tempo: ${tempo}s`;
+    p.innerHTML = `tempo: ${tempo} / ${tmax} : 00`;
     vs();
 }
 
 function reload(){
-    x=0;
-    y=0;
-    minuti =0;
-    secondi =0;
-    direzione ="";
-    punteggio=0;
-    poteri= [true, true];
-    turno1 = false;
-    gioco = true;
-    document.getElementById('punteggio').innerHTML = `punteggio: 0` 
-    document.getElementById('tabella').innerHTML="";
-    if(document.getElementById('vs') != null){
-        rimuoviCella(document.getElementById('vs'))
+    document.getElementById('main').style.display = 'none'
+    document.getElementById('impostazioni').style.display = '';
+}
+
+function generalinee(){
+    let divtabella = document.getElementById('tabella')
+    for(let i =0; i<16; i++){
+        let div =document.createElement('div');
+        div.setAttribute('class', 'linee');
+        divtabella.appendChild(div);
     }
-    t =setInterval(timer, 10000);//non so perche vada bene 10000 mentre all'inizio 1000
-    random();
-    random();
 }
 
 function vs(){
@@ -278,21 +334,25 @@ function vs(){
 
     for (let i =0; i<celle.length; i++){
         let cella = celle[i];
-        //console.log(parseInt(cella.dataset.val))
 
         if(cella.dataset.val != 0){
             contatore++
         }
         if (parseInt(cella.dataset.val) == 2048){
             testo = "Hai Vintoo!!";
+            div.style.backgroundColor=`rgb(122, 160, 52)`;
         }
 
     }
-    if(minuti> 5){
+    if(minuti> tmax){
         testo = 'Hai Perso';
+        div.style.backgroundColor=`rgb(196, 138, 116)`;
     }
     if (contatore == 16){
-        testo= 'Hai Perso';
+        if(!poteri[0] && !poteri[1]){//se posso usare i poteri
+            testo= 'Hai Perso';
+            div.style.backgroundColor=`rgb(196, 138, 116)`;
+        }
     }
     
     let divtext = document.createTextNode(testo);
@@ -314,20 +374,46 @@ function potrimuovi(){
         for (let i =0; i<celle.length; i++){
             let cella = celle[i];
 
-            if(cella.dataset.val == 2 || cella.dataset.val == 2){
+            if(cella.dataset.val == 2 || cella.dataset.val == 4){
                 rimuoviCella(cella);
             }
 
         }
         poteri[0]= false;
     }
-    console.log(poteri)
 }
+
 function potriordina(){
+    if (poteri[1]){
+        alert('funziona')
+        let celle = document.querySelectorAll('.celle');
+        let valorecelle=[];
 
+        for(let i=0; i<celle.length; i++){
+            let cella = celle[i];
+            if(cella.dataset.val != null){
+                valorecelle.push(cella.dataset.val);
+            }
+        }
+    }
+    poteri[1]=false;
 }
 
-// aggiungere potere riordina
-//sistemare bug nello scontro
-//mettere righe e colonne
-//sistemare immagini
+function legenda(){
+    let div = document.getElementById('legenda');
+    for(let i=1; i<12; i++){
+        let divimg = document.createElement('div');
+        divimg.setAttribute('class', 'divimg')
+        let img = document.createElement('img');
+        img.setAttribute('class', 'imglegg')
+        img.src =`img/${Math.pow(2, i)}.png`
+        let p = document.createElement('p');
+        let ptext = document.createTextNode(` = ${Math.pow(2, i)} punti`)
+        p.appendChild(ptext);
+        console.log(Math.pow(2, i));
+        divimg.appendChild(img);
+        divimg.appendChild(p);
+        div.appendChild(divimg);
+    }
+}
+//aggiungere potere riordina

@@ -10,6 +10,15 @@
     <div id="titolo">
         <h1>2048 Natalizio!</h1>
     </div>
+    <div id="impostazioni">
+        <div id="sopra">
+            <label for="tmax" class="tmax">Tempo massimo(in minuti): </label>
+            <input type="number" id="tmax" class="tmax" required value="15" min="0">
+        </div>
+        <div id="sotto">
+            <button onclick="partita()" id ="gioca">Gioca!</button>
+        </div>
+    </div>
     <div id="main">
         <div id="extras">
             <p id ='timer' class="extras">tempo: 0 : 0</p>
@@ -41,6 +50,9 @@
             <button onclick="potrimuovi()" class = 'poteri'>rimuovi</button>
             <button onclick="potriordina()" class = 'poteri'>riordina</button>
         </div>
+    </div>
+    <div id="legenda">
+        
     </div>
 </body>
 </html>
