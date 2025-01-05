@@ -4,12 +4,15 @@ let turno1 = true;
 let punteggio =0;
 let secondi =0;
 let minuti =0;
+let poteri= [true, true];
+let gioco = true;
+let t;
 
 window.onload = function(){//funzioni da caricare al caricamento della pagina (random)
     random();
     random();
     aggiornapunteggio();
-    setInterval(timer, 1000);
+    t =setInterval(timer, 1000);
 }
 
 
@@ -74,7 +77,6 @@ function input(input) {
             spostasinistra()
             break;
     }
-    vs();
     random();
 }
 
@@ -95,7 +97,6 @@ document.addEventListener('keydown', function(event) {//tasti
         default:
             return;
     }
-    vs();
     random();
 }); 
 
@@ -246,6 +247,7 @@ function timer(){
 
     let tempo = `${minuti} : ${secondi}`
     p.innerHTML = `tempo: ${tempo}s`;
+    vs();
 }
 
 function reload(){
@@ -255,9 +257,15 @@ function reload(){
     secondi =0;
     direzione ="";
     punteggio=0;
+    poteri= [true, true];
     turno1 = false;
+    gioco = true;
     document.getElementById('punteggio').innerHTML = `punteggio: 0` 
     document.getElementById('tabella').innerHTML="";
+    if(document.getElementById('vs') != null){
+        rimuoviCella(document.getElementById('vs'))
+    }
+    t =setInterval(timer, 10000);//non so perche vada bene 10000 mentre all'inizio 1000
     random();
     random();
 }
@@ -270,7 +278,7 @@ function vs(){
 
     for (let i =0; i<celle.length; i++){
         let cella = celle[i];
-        console.log(parseInt(cella.dataset.val))
+        //console.log(parseInt(cella.dataset.val))
 
         if(cella.dataset.val != 0){
             contatore++
@@ -280,17 +288,46 @@ function vs(){
         }
 
     }
-
+    if(minuti> 5){
+        testo = 'Hai Perso';
+    }
     if (contatore == 16){
-        testo= 'hai perso';
+        testo= 'Hai Perso';
     }
     
     let divtext = document.createTextNode(testo);
-
-    if (testo != undefined){
-        div.appendChild(divtext);
-        div.setAttribute('id', 'vs');
-        document.getElementById('main').prepend(div);//prepend per scriverlo sopra ad ogni cosa
+    if (gioco){
+        if (testo != undefined){
+            div.appendChild(divtext);
+            div.setAttribute('id', 'vs');
+            document.getElementById('main').prepend(div);//prepend per scriverlo sopra ad ogni cosa
+            gioco = false;
+            clearInterval(t);//per bloccare il tempo
+        }
     }
 }
 
+function potrimuovi(){
+    if (poteri[0]){
+        const celle = document.querySelectorAll('.celle');
+
+        for (let i =0; i<celle.length; i++){
+            let cella = celle[i];
+
+            if(cella.dataset.val == 2 || cella.dataset.val == 2){
+                rimuoviCella(cella);
+            }
+
+        }
+        poteri[0]= false;
+    }
+    console.log(poteri)
+}
+function potriordina(){
+
+}
+
+// aggiungere potere riordina
+//sistemare bug nello scontro
+//mettere righe e colonne
+//sistemare immagini

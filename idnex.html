@@ -12,13 +12,13 @@
     </div>
     <div id="main">
         <div id="extras">
-            <button onclick="reload()" id="reload">Ricomincia!</button>
-            <p id ='timer'>tempo: 0 : 0</p>
-            <p id="punteggio"></p>
+            <p id ='timer' class="extras">tempo: 0 : 0</p>
+            <button onclick="reload()" id="reload" class="extras">Ricomincia!</button>
+            <p id="punteggio" class="extras"></p>
         </div>
         <div id="tabella"></div>
         <div id="pulsanti">
-            <table>
+            <table id="tabpulsanti">
                 <tr>
                     <td rowspan="2">
                         <button onclick="input('sinistra')" class="laterali">&#x2190</button>
@@ -36,6 +36,10 @@
                     </td>
                 </tr>
             </table>
+        </div>
+        <div id="poteri">
+            <button onclick="potrimuovi()" class = 'poteri'>rimuovi</button>
+            <button onclick="potriordina()" class = 'poteri'>riordina</button>
         </div>
     </div>
 </body>

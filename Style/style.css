@@ -14,7 +14,7 @@ body{
     grid-template-columns: repeat(4, 1fr); /* 4 colonne di uguale larghezza */
     grid-template-rows: repeat(4, 1fr);
     gap: 150px; /* Spazio tra gli elementi */
-    background-color: white;
+    background-color: #c6a664;
 }
 
 .celle{
@@ -25,7 +25,7 @@ body{
     position: absolute;
     display: flex;
     margin: 0px;
-    transition: top 0.3s ease, left 0.3s ease;
+    transition: top 0.2s ease, left 0.2s ease;
     animation: appari 0.2s ease-out forwards; 
 }
 
@@ -45,11 +45,46 @@ body{
     border: 2px solid black;
 }
 
+.extras{
+    margin: auto;
+}
+
+.poteri{
+    margin-top: 20px;
+    width: 130px;
+    height: 35px;
+    background-color: rgb(167, 101, 101);
+    border-radius: 12px;
+    border: 1px solid black;
+}
+#titolo{
+    align-items: center;
+    text-align: center;
+}
 #main{
     align-items: center;
     text-align: center;
 }
 
+#vs{
+    height: 50px;
+    align-content: center;
+    margin-bottom: 10px;
+    background-color: rgb(196, 138, 116);
+    border-radius: 12px;
+    border: 1px solid black;
+}
+#pulsanti{
+    display: flex;
+}
+
+#tabpulsanti{
+    margin: auto;
+}
+
+#extras{
+    display: flex;
+}
 
 #punteggio{
     text-align: right;
@@ -62,6 +97,14 @@ body{
 #vs{/*sistemare colori*/
     border-radius: 20px;
     font-size: 26px;
+}
+
+#reload{
+    width: 130px;
+    height: 35px;
+    background-color: brown;
+    border-radius: 12px;
+    border: 1px solid black;
 }
 
 @keyframes appari {
