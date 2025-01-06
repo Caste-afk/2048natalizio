@@ -58,7 +58,6 @@ function partita(){
             pmess.appendChild(ptext);
             div.appendChild(pmess);
             document.getElementById('impostazioni').appendChild(div);
-            console.log(pmess.textContent);
             scritto = true;
         }
     }
@@ -102,7 +101,6 @@ function random(){
 }
 
 function inserisciCella(nx, ny,nval){
-    console.log(`posizione: (${nx}, ${ny}), valore: ${nval}`);
     const div = document.createElement('div');
     let divimg = document.createElement(`img`);
     divimg.src = `img/${nval}.png`;
@@ -385,7 +383,6 @@ function potrimuovi(){
 
 function potriordina(){
     if (poteri[1]){
-        alert('funziona')
         let celle = document.querySelectorAll('.celle');
         let valorecelle=[];
 
@@ -408,9 +405,10 @@ function legenda(){
         img.setAttribute('class', 'imglegg')
         img.src =`img/${Math.pow(2, i)}.png`
         let p = document.createElement('p');
-        let ptext = document.createTextNode(` = ${Math.pow(2, i)} punti`)
+        p.setAttribute('class', 'plegg');
+        let ptext = document.createTextNode(`${Math.pow(2, i)} punti`)
+        p.appendChild(img);
         p.appendChild(ptext);
-        console.log(Math.pow(2, i));
         divimg.appendChild(img);
         divimg.appendChild(p);
         div.appendChild(divimg);

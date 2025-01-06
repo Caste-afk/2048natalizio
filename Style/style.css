@@ -69,15 +69,29 @@ img{
 }
 
 .divimg{
-    display: flex;
+    margin: auto;
+    border: 1px solid black;
+    border-radius: 12px;
+    padding: 10px;
+    background-color: rgb(167, 133, 101);
 }
 .imglegg{
     align-items: left;
     width: 75px;
     height: 75px;
     border: 2px solid black;
+    border-radius: 12px;
     background-color: white;
     overflow: hidden;
+}
+
+.plegg{
+    text-align: center;
+}
+
+#legenda{
+    margin-top: 30px;
+    display: flex;
 }
 
 #titolo{
