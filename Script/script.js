@@ -31,11 +31,13 @@ function partita(){
         turno1 = false;
         gioco = true;
         document.getElementById('impostazioni').style.display = 'none'
-        document.getElementById('punteggio').innerHTML = `punteggio: 0` 
+        document.getElementById('punteggio').innerHTML = `punteggio: 0` ;
         document.getElementById('tabella').innerHTML="";
-        document.getElementById('main').style.display = ''
-        random();
-        random();
+        document.getElementById('main').style.display = '';
+        if (document.getElementById('diverr')!=null){
+            rimuoviCella(document.getElementById('diverr'));
+            scritto=false;
+        }
         aggiornapunteggio();
         let molt;
         //serve questo for altrimenti il tempo si velocizza;
@@ -59,6 +61,7 @@ function partita(){
             div.appendChild(pmess);
             document.getElementById('impostazioni').appendChild(div);
             scritto = true;
+        }else{
         }
     }
 }
@@ -291,7 +294,6 @@ function spostasinistra() {
         }
 }
 
-
 function aggiornapunteggio(){
     let p = document.getElementById('punteggio');
     p.innerHTML = `punteggio: ${punteggio}`;
@@ -310,9 +312,11 @@ function timer(){
     vs();
 }
 
-function reload(){
+function reload(){// per la ricarica della pagina
     document.getElementById('main').style.display = 'none'
     document.getElementById('impostazioni').style.display = '';
+    document.getElementById('pot1').style.backgroundColor = 'rgb(122, 160, 52)';
+    document.getElementById('pot2').style.backgroundColor = 'rgb(122, 160, 52)';
 }
 
 function generalinee(){
@@ -324,7 +328,7 @@ function generalinee(){
     }
 }
 
-function vs(){
+function vs(){//controlla se vittoria o se sconfitta
     let div = document.createElement('div');
     const celle = document.querySelectorAll('.celle');
     let contatore =0;
@@ -343,13 +347,15 @@ function vs(){
 
     }
     if(minuti> tmax){
-        testo = 'Hai Perso';
+        testo = 'Game Over';
         div.style.backgroundColor=`rgb(196, 138, 116)`;
     }
     if (contatore == 16){
-        if(!poteri[0] && !poteri[1]){//se posso usare i poteri
-            testo= 'Hai Perso';
-            div.style.backgroundColor=`rgb(196, 138, 116)`;
+        if(movdisp()){
+            if(!poteri[0] && !poteri[1]){//se posso usare i poteri
+                testo= 'Game Over';
+                div.style.backgroundColor=`rgb(196, 138, 116)`;
+            }
         }
     }
     
@@ -365,6 +371,47 @@ function vs(){
     }
 }
 
+function movdisp() {
+    let celle = document.querySelectorAll('.celle');
+    let puo = true;
+
+    for (let i = 0; i < celle.length; i++) {
+        let cella = celle[i];
+        let xcella = parseInt(cella.dataset.x);
+        let ycella = parseInt(cella.dataset.y);
+        let valcella = parseInt(cella.dataset.val);
+        let csopra = cellaPresente(xcella, ycella - 1);
+        let csotto = cellaPresente(xcella, ycella + 1);
+        let cdestra = cellaPresente(xcella + 1, ycella);
+        let csinistra = cellaPresente(xcella - 1, ycella);
+        
+        csopra = csopra ? parseInt(csopra.dataset.val) : null;
+        csotto = csotto ? parseInt(csotto.dataset.val) : null;
+        cdestra = cdestra ? parseInt(cdestra.dataset.val) : null;
+        csinistra = csinistra ? parseInt(csinistra.dataset.val) : null;
+        
+        //controlla celle vicine
+        if (
+            (csopra != null && csopra == valcella) ||
+            (csotto != null && csotto == valcella) ||
+            (cdestra != null && cdestra == valcella) ||
+            (csinistra != null && csinistra == valcella)
+        ) {
+            puo = false;
+            return puo;
+        }
+    }
+
+    return puo;
+}
+
+
+//funzione per ottenere la cella specificata
+function cellaPresente(x, y) {
+    return document.querySelector(`.celle[data-x="${x}"][data-y="${y}"]`);
+}
+
+
 function potrimuovi(){
     if (poteri[0]){
         const celle = document.querySelectorAll('.celle');
@@ -378,6 +425,7 @@ function potrimuovi(){
 
         }
         poteri[0]= false;
+        document.getElementById('pot1').style.backgroundColor = 'rgb(167, 101, 101)';
     }
 }
 
@@ -392,8 +440,33 @@ function potriordina(){
                 valorecelle.push(cella.dataset.val);
             }
         }
+        valorecelle.sort((a, b) => b - a);
+        let ix =0;//valore per riposizione
+        let iy=0;//valore per riposizione
+        let tx=0;//valore per trovare celle
+        let ty=0//valore per trovare celle
+        let acelle=0;
+        for (let i =0; i< 16; i++){//16 numero di celle totali
+            let cella = cellaPresente(tx, ty);
+            if (cella != null){
+                rimuoviCella(cella);
+                inserisciCella(ix, iy, valorecelle[acelle]);
+                acelle++;
+                ix++;
+                if (ix >3){
+                    ix=0;
+                    iy++;
+                }
+            }
+            tx++;
+            if (tx >3){
+                tx=0;
+                ty++;
+            }
+        }
     }
     poteri[1]=false;
+    document.getElementById('pot2').style.backgroundColor = 'rgb(167, 101, 101)';
 }
 
 function legenda(){
@@ -414,4 +487,3 @@ function legenda(){
         div.appendChild(divimg);
     }
 }
-//aggiungere potere riordina
